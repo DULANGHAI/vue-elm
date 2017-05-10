@@ -6,10 +6,18 @@
           <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#arrow-left"></use>
         </svg>
         <div class="title">选择地址</div>
-        <input type="search" placeholder="请输入地址" autofocus="autofocus" class="search-input" v-model="placeWord" @keyup.enter="nearby">
+        <input type="search" placeholder="请输入地址" autofocus="autofocus" class="search-input" v-model="placeWord" @change="nearby">
       </form>
+      <div class="choose-location-height"></div>
+      <!--搜索到的地址展示-->
+      <section>
+        <div class="address" v-for="(address, index) in addressList" @click="chooseAddress(index)">
+          <p class="address-cell-1">{{address.name}}</p>
+          <p class="address-cell-2">{{address.address}}</p>
+        </div>
+      </section>
       <!--没有搜到地址-->
-      <section class="padt4">
+      <section class="padt4" :style="{ display: addressList.length===0 ? '':'none' }">
         <section class="nodatatip">
           <img src="//github.elemecdn.com/eleme/fe-static/master/media/empty/no-shop.png">
           <h3>没有搜索结果</h3>
@@ -92,6 +100,26 @@
       font-size: .346667rem;
     }
 
+  }
+
+  .choose-location-height{
+    height: 2.346667rem;
+  }
+
+  .address{
+    font-size: .32rem;
+    background-color: #fff;
+    padding: .266667rem .4rem;
+
+    .address-cell-1{
+      font-weight: 700;
+      font-size: .373333rem;
+    }
+
+    .address-cell-2{
+      color: #999;
+      font-size: .32rem;
+    }
   }
 
   .padt4{
@@ -272,6 +300,7 @@
                 isGetLocation: false,//是否已获取地址信息
                 chooseLocation: false,//是否要选择地址
                 placeWord: '',//搜索地址的关键字
+                addressList: [],//搜索地址返回数据
             }
         },
         components:{
@@ -307,12 +336,18 @@
                 this.isGetLocation = false;
             },
             nearby(){
-                debugger;
                 if(this.placeWord){
                     searchplace(this.placeWord).then(res => {
-                        console.log(res);
+                        this.addressList = res;
                     });
                 }
+            },
+            chooseAddress(index){
+              this.geohash = this.addressList[index]['geohash'];
+              this.record_address(this.addressList[index]);
+              this.msiteTitle = this.addressList[index].name;
+              this.chooseLocation = false;
+              this.isGetLocation = false;
             }
         }
     }
